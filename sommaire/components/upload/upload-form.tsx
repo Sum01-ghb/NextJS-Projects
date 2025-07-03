@@ -4,7 +4,11 @@ import { z } from "zod";
 import { useUploadThing } from "@/utils/uploadthing";
 import UploadFormInput from "./upload-form-input";
 import { toast } from "sonner";
-import { generatePdfSummary } from "@/actions/upload-actions";
+import {
+  generatePdfSummary,
+  storePdfSummaryAction,
+} from "@/actions/upload-actions";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   file: z
@@ -22,6 +26,7 @@ const schema = z.object({
 export default function UploadForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
     onClientUploadComplete: () => {
@@ -100,6 +105,7 @@ export default function UploadForm() {
       const { data = null, message = null } = result || {};
 
       if (data) {
+        let storeResult: any;
         toast(
           <div>
             <p className="font-semibold text-base">📄 Saving PDF...</p>
@@ -108,15 +114,33 @@ export default function UploadForm() {
             </p>
           </div>
         );
-      }
 
-      formRef.current?.reset();
-      if (data?.summary) {
+        if (data?.summary) {
+          storeResult = await storePdfSummaryAction({
+            fileUrl: resp[0].serverData.file.url,
+            summary: data.summary,
+            title: data.title,
+            fileName: file.name,
+          });
+
+          toast(
+            <div>
+              <p className="font-semibold text-base">📄 Summary generated!</p>
+              <p className="text-sm text-muted-foreground">
+                Your PDF has been successfully summarized and saved!
+              </p>
+            </div>
+          );
+          formRef.current?.reset();
+          router.push(`/summaries/${storeResult.data.id}`);
+        }
       }
     } catch (error) {
       setIsLoading(false);
       console.error("Error occured", error);
       formRef.current?.reset();
+    } finally {
+      setIsLoading(false);
     }
   };
 
