@@ -5,7 +5,7 @@ export function formatFileNameAsTitle(fileName: string): string {
     .replace(/[-_]+/g, " ")
     .replace(/([a-z])(A-Z)/g, "$1 $2");
   return withSpaces
-    .split("")
+    .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ")
     .trim();
