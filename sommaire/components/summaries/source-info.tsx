@@ -1,6 +1,7 @@
 import { ExternalLink, FileText } from "lucide-react";
 import { Button } from "../ui/button";
-import { DownloadSummaryButton } from "./downlaod-summaries-button";
+-import { DownloadSummaryButton } from "./downlaod-summaries-button";
++import { DownloadSummaryButton } from "./download-summaries-button";
 
 export function SourceInfo({
   fileName,
